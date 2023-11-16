@@ -14,6 +14,7 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        age = request.form['age']
         db = get_db()
         error = None
 
@@ -21,12 +22,17 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-
+        elif not age:
+            error = 'Age is required.'
+        elif not age.isdigit:
+            error = 'Age input was not numeric.'
+        elif int(age) < 18:
+            error = 'You must be 18 to create an account'
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
+                    "INSERT INTO user (username, password, age) VALUES (?, ?, ?)",
+                    (username, generate_password_hash(password), age),
                 )
                 db.commit()
             except db.IntegrityError:
